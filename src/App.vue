@@ -7,7 +7,7 @@
           <b-row>
             <b-col sm>
               <label for="status">Status</label>
-              <b-form-select v-model="status" :options="options" @change="changeStatus($event)"></b-form-select>
+              <b-form-select v-model="status" :options="options"></b-form-select>
             </b-col>
             <b-col sm>
               <label for="from-datepicker">From date</label>
@@ -18,8 +18,13 @@
               <b-form-datepicker id="to-datepicker" v-model="to_date" class="mb-2"></b-form-datepicker>
             </b-col>
             <b-col>
-              <b-button class="mt-4" variant="outline-primary" @click="DateFilter()">Search</b-button>
+              <b-button class="mt-4" variant="outline-primary" @click="SearchFilter()">Search</b-button>
             </b-col>
+          </b-row>
+        </b-card>
+        <b-card>
+          <b-row>
+            <line-chart :data="chartData"></line-chart>
           </b-row>
         </b-card>
         <b-row>
@@ -28,12 +33,15 @@
           <b-col sm><h3>Call Duration</h3></b-col>
           <b-col sm><h3>Status</h3></b-col>
         </b-row>
-        <b-row v-for="(item, index) in list" :key="index">
+        <b-row v-for="(item, index) in list.data" :key="index">
           <b-col sm>{{ item.call_date }}</b-col>
           <b-col sm>{{ item.phone_number }}</b-col>
           <b-col sm>{{ item.call_duration }}</b-col>
           <b-col sm>{{ item.status }}</b-col>
         </b-row>
+        <template v-slot:footer>
+          <pagination :data="list" @pagination-change-page="getResults"></pagination>
+        </template>
       </b-card>
     </b-container>
   </div>
@@ -47,44 +55,55 @@ import VueAxios from 'vue-axios'
 
  
 Vue.use(VueAxios, axios)
-
+const baseUrl = 'http://axilweb.test/api/';
 export default {
   name: 'App',
- 
+
 
   data () {
     return {
-      list: [],
-      status: null,
+      list: {},
+      status: '',
       from_date:'',
       to_date:'',
       options: [
-        { value: null, text: 'Please select an option' },
+        { value: '', text: 'Please select an option' },
         { value: 'in-call', text: 'in call' },
         { value: 'hold', text: 'hold' },
         { value: 'do not call', text: 'do not call' },
         { value: 'call back', text: 'call back' },
-      ]
+      ],
+
+      //For Chart
+      chartData: []
     }
   },
   
   created () {
-    this.axios.get('http://axilweb.test/api/get-logs').then((response) => {
+    this.axios.get(baseUrl+'get-logs').then((response) => {
       this.list = response.data.data
+    });
+    this.axios.get(baseUrl+'chart-data').then((response) => {
+      this.chartData = response.data.data
     })
   },
   methods: {
-    // changeStatus(event) {
-    //   let status = event;
-    //   this.axios.get('http://axilweb.test/api/get-logs?status='+status).then((response) => {
-    //     this.list = response.data.data
-    //   })
-    // },
-
-    DateFilter(){
-      this.axios.get('http://axilweb.test/api/get-logs?status='+this.status+'&from_date='+this.from_date+'&to_date='+this.to_date).then((response) => {
+    SearchFilter(){
+      this.axios.get(baseUrl+'get-logs?status='+this.status+'&from_date='+this.from_date+'&to_date='+this.to_date).then((response) => {
         this.list = response.data.data
+      });
+
+      this.axios.get(baseUrl+'chart-data?status='+this.status).then((response) => {
+        this.chartData = response.data.data
       })
+
+    },
+
+    getResults(page = 1) {
+      axios.get(baseUrl+'get-logs?page=' + page)
+              .then(response => {
+                this.list = response.data.data;
+              });
     }
   }
 }
