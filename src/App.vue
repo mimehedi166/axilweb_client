@@ -28,16 +28,16 @@
           </b-row>
         </b-card>
         <b-row>
-          <b-col sm><h3>Call Date</h3></b-col>
-          <b-col sm><h3>Phone Number</h3></b-col>
-          <b-col sm><h3>Call Duration</h3></b-col>
-          <b-col sm><h3>Status</h3></b-col>
+          <b-col ><h3>Call Date</h3></b-col>
+          <b-col ><h3>Phone Number</h3></b-col>
+          <b-col ><h3>Call Duration</h3></b-col>
+          <b-col ><h3>Status</h3></b-col>
         </b-row>
         <b-row v-for="(item, index) in list.data" :key="index">
-          <b-col sm>{{ item.call_date }}</b-col>
-          <b-col sm>{{ item.phone_number }}</b-col>
-          <b-col sm>{{ item.call_duration }}</b-col>
-          <b-col sm>{{ item.status }}</b-col>
+          <b-col >{{ item.call_date }}</b-col>
+          <b-col >{{ item.phone_number }}</b-col>
+          <b-col >{{ item.call_duration }}</b-col>
+          <b-col >{{ item.status }}</b-col>
         </b-row>
         <template v-slot:footer>
           <pagination :data="list" @pagination-change-page="getResults"></pagination>
@@ -100,7 +100,7 @@ export default {
     },
 
     getResults(page = 1) {
-      axios.get(baseUrl+'get-logs?page=' + page)
+      axios.get(baseUrl+'get-logs?page=' + page +'&status='+ this.status + '&from_date='+ this.from_date + '&to_date='+ this.to_date)
               .then(response => {
                 this.list = response.data.data;
               });
