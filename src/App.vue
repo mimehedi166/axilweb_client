@@ -93,7 +93,7 @@ export default {
         this.list = response.data.data
       });
 
-      this.axios.get(baseUrl+'chart-data?status='+this.status).then((response) => {
+      this.axios.get(baseUrl+'chart-data?status='+this.status+'&from_date='+this.from_date+'&to_date='+this.to_date).then((response) => {
         this.chartData = response.data.data
       })
 
